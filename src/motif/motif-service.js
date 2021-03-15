@@ -17,7 +17,7 @@ const MotifService = {
               .then(rows => {
                   return rows[0]
               })
-              .catch(err => console.log('posterr',err))
+              .catch(err => console.log('post-err',err))
   },
 }
 module.exports = MotifService
