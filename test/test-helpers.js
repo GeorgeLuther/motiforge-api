@@ -35,60 +35,25 @@ function makeUsersArray() {
 }
 
 /**
- * generate fixtures of motifs, phrases, and forms for a given user
- * @param {object} user - contains `id` property
- * @returns {Array(motifs, phrases, and forms)} - arrays of motifs, phrases, and forms
+ * insert users into db with bcrypted passwords and update sequence
+ * @param {knex instance} db
+ * @param {array} users - array of user objects for insertion
+ * @returns {Promise} - when users table seeded
  */
-// function makeMotifsPhrasesForms(user) {
-//   const motif = [
-//     {
-//       id: 1,
-//       name: 'Test motif 1',
-//       notes: '{0,1,0,0,1,0,1,0}',
-//       user_id: user.id,
-//     },
-//   ]
+ function seedUsers(db, users) {
+  const preppedUsers = users.map(user => ({
+    ...user,
+    password: bcrypt.hashSync(user.password, 1)
+  }))
+  return db.transaction(async trx => {
+    await trx.into('user').insert(preppedUsers)
 
-//   const words = [
-//     {
-//       id: 1,
-//       original: 'original 1',
-//       translation: 'translation 1',
-//       language_id: 1,
-//       next: 2,
-//     },
-//     {
-//       id: 2,
-//       original: 'original 2',
-//       translation: 'translation 2',
-//       language_id: 1,
-//       next: 3,
-//     },
-//     {
-//       id: 3,
-//       original: 'original 3',
-//       translation: 'translation 3',
-//       language_id: 1,
-//       next: 4,
-//     },
-//     {
-//       id: 4,
-//       original: 'original 4',
-//       translation: 'translation 4',
-//       language_id: 1,
-//       next: 5,
-//     },
-//     {
-//       id: 5,
-//       original: 'original 5',
-//       translation: 'translation 5',
-//       language_id: 1,
-//       next: null,
-//     },
-//   ]
-
-//   return [languages, words]
-// }
+    await trx.raw(
+      `SELECT setval('user_id_seq', ?)`,
+      [users[users.length - 1].id],
+    )
+  })
+}
 
 /**
  * make a bearer token with jwt for authorization header
@@ -97,12 +62,91 @@ function makeUsersArray() {
  * @returns {string} - for HTTP authorization header
  */
 
-function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
+ function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
   const token = jwt.sign({ user_id: user.id }, secret, {
     subject: user.username,
     algorithm: 'HS256',
   })
   return `Bearer ${token}`
+}
+
+/**
+ * generate fixtures of motifs, phrases, and forms for a given user
+ * @param {object} user - contains `id` property
+ * @returns {Array(motifs, phrases, and forms)} - arrays of motifs, phrases, and forms
+ */
+function makeMotifsPhrasesForms(user) {
+  const motifs = [
+    {
+      id: 1,
+      name: 'Test motif 1',
+      date_created: '2021-03-16T04:50:07.486Z',
+      notes: [0,1,0,0,1,0,1,0],
+      user_id: user.id,
+    },
+    {
+      id: 2,
+      name: 'Test motif 2',
+      date_created: '2021-03-16T04:50:07.486Z',
+      notes: [0,2,4,7],
+      user_id: user.id,
+    },
+    {
+      id: 3,
+      name: 'Test motif 3',
+      date_created: '2021-03-16T04:50:07.486Z',
+      notes: [4,3,2,1,0,-1,1],
+      user_id: user.id,
+    },
+  ]
+  const phrases = [
+    {
+      id: 1,
+      name: 'Test phrase 1',
+      motifs: '{1,2,1,3,1}',
+      modal_shifts: '{0,0,0,0,0}',
+      user_id: user.id,
+    },
+    {
+      id: 2,
+      name: 'Test phrase 2',
+      motifs: '{1,1,1,2}',
+      modal_shifts: '{1,5,-1,1}',
+      user_id: user.id,
+    },
+    {
+      id: 3,
+      name: 'Test phrase 3',
+      motifs: '{3,3,2,3}',
+      modal_shifts: '{3,2,1,0}',
+      user_id: user.id,
+    },
+  ]
+  const forms = [
+    {
+      id: 1,
+      name: 'Test form 1',
+      phrases: '{1,2,1,3,1}',
+      transpositions: '{0,0,0,0,0}',
+      user_id: user.id,
+    },
+    {
+      id: 2,
+      name: 'Test form 2',
+      phrases: '{1,1,1,2}',
+      transpositions: '{1,5,-1,1}',
+      user_id: user.id,
+    },
+    {
+      id: 3,
+      name: 'Test form 3',
+      phrases: '{3,3,2,3}',
+      transpositions: '{3,2,1,0}',
+      user_id: user.id,
+    },
+  ]
+
+  return [motifs, phrases, forms]
 }
 
 /**
@@ -135,61 +179,38 @@ function cleanTables(db) {
 }
 
 /**
- * insert users into db with bcrypted passwords and update sequence
- * @param {knex instance} db
- * @param {array} users - array of user objects for insertion
- * @returns {Promise} - when users table seeded
- */
-function seedUsers(db, users) {
-  const preppedUsers = users.map(user => ({
-    ...user,
-    password: bcrypt.hashSync(user.password, 1)
-  }))
-  return db.transaction(async trx => {
-    await trx.into('user').insert(preppedUsers)
-
-    await trx.raw(
-      `SELECT setval('user_id_seq', ?)`,
-      [users[users.length - 1].id],
-    )
-  })
-}
-
-/**
  * seed the databases with words and update sequence counter
  * @param {knex instance} db
  * @param {array} users - array of user objects for insertion
- * @param {array} languages - array of languages objects for insertion
- * @param {array} words - array of words objects for insertion
+ * @param {array} motifs - array of motif objects for insertion
+ * @param {array} phrases - array of phrase objects for insertion
+ * * @param {array} forms - array of form objects for insertion
  * @returns {Promise} - when all tables seeded
 //  */
-// async function seedUsersLanguagesWords(db, users, languages, words) {
-//   await seedUsers(db, users)
+async function seedUsersMotifsPhrasesForms(db, users, motifs, phrases, forms) {
+  await seedUsers(db, users)
 
-//   await db.transaction(async trx => {
-//     await trx.into('language').insert(languages)
-//     await trx.into('word').insert(words)
+  await db.transaction(async trx => {
+    await trx.into('motif').insert(motifs)
+    await trx.into('phrase').insert(phrases)
+    await trx.into('form').insert(forms)
 
-//     const languageHeadWord = words.find(
-//       w => w.language_id === languages[0].id
-//     )
-
-//     await trx('language')
-//       .update({ head: languageHeadWord.id })
-//       .where('id', languages[0].id)
-
-//     await Promise.all([
-//       trx.raw(
-//         `SELECT setval('language_id_seq', ?)`,
-//         [languages[languages.length - 1].id],
-//       ),
-//       trx.raw(
-//         `SELECT setval('word_id_seq', ?)`,
-//         [words[words.length - 1].id],
-//       ),
-//     ])
-//   })
-// }
+    await Promise.all([
+      trx.raw(
+        `SELECT setval('motif_id_seq', ?)`,
+        [motifs[motifs.length - 1].id],
+      ),
+      trx.raw(
+        `SELECT setval('phrase_id_seq', ?)`,
+        [phrases[phrases.length - 1].id],
+      ),
+      trx.raw(
+        `SELECT setval('form_id_seq', ?)`,
+        [forms[forms.length - 1].id],
+      ),
+    ])
+  })
+}
 
 module.exports = {
   makeKnexInstance,
@@ -197,6 +218,6 @@ module.exports = {
   makeAuthHeader,
   cleanTables,
   seedUsers,
-  //makeLanguagesAndWords,
-  //seedUsersLanguagesWords,
+  makeMotifsPhrasesForms,
+  seedUsersMotifsPhrasesForms
 }

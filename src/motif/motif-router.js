@@ -22,42 +22,43 @@ motifRouter.route('/')
       })
       .catch(next)
   })
-  // .use(async (req, res, next) => {
-  //   try {
-  //     const motif = await MotifService.getMotifs(
-  //       req.app.get('db'),
-  //       req.user.id,
-  //     )
-  //     if (!motif)
-  //       return res.status(404).json({
-  //         error: `You don't have any motifs`,
-  //       })
-  //     req.motif = res.json(motif)
-  //     next()
-  //   } catch (error) {
-  //     next(error)
-  //   }
-  // })
-// motifRouter
-//   .use(requireAuth)
-//   .post(jsonParser,(req,res,next)=>{
-//     MotifService.addNewMotif(
-//       req.app.get('db'),
-//       req.user.id,
-//       )
-//       .then(motif => {
-//           res
-//               .status(201)
-//               .json(motif)
-//       })
-//       .catch(next)
-// })
-// const seq = await db
-// .from('word_id_seq')
-// .select('last_value')
-// .first()
 
-  
-  
+motifRouter.route('/:id')
+    .all((req, res, next)=>{
+      MotifService.getMotifById(
+          req.app.get('db'),
+          req.params.id
+      )
+      .then(motif=>{
+          if (!motif){
+              return res.status(404).json({
+                  error: {message: 'Motif does not exist'}
+              })
+          }
+          res.motif = motif
+          next()
+      })
+      .catch(next)
+    })
+    .get((req,res,next)=>{
+      res.status(200).json(res.motif)
+    })
+    .delete(requireAuth, (req, res, next) => {
+      MotifService.deleteMotif(req.app.get('db'), req.params.id)
+          .then(()=>{res.status(204).end()})
+          .catch(next)
+    })
+    .patch(requireAuth, jsonParser,(req, res, next)=> {
+      const { name, notes } = req.body
+      const newData = { name, notes }
+
+      newData.name = xss(newData.name)
+
+      MotifService.updateMotif(req.app.get('db'), req.params.id, newData)
+        .then(
+          res.status(204).end()
+        )
+        .catch(next)
+    })
 
 module.exports = motifRouter

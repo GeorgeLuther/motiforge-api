@@ -6,7 +6,7 @@ describe('Protected Endpoints', function () {
 
   const testUsers = helpers.makeUsersArray()
   const [testUser] = testUsers
-  // const [testLanguages, testWords] = helpers.makeLanguagesAndWords(testUser)
+  const [testMotifs, testPhrases, testForms] = helpers.makeMotifsPhrasesForms(testUser)
 
   before('make knex instance', () => {
     db = helpers.makeKnexInstance()
@@ -19,29 +19,35 @@ describe('Protected Endpoints', function () {
 
   afterEach('cleanup', () => helpers.cleanTables(db))
 
-  // beforeEach('insert users, languages and words', () => {
-  //   return helpers.seedUsersLanguagesWords(
-  //     db,
-  //     testUsers,
-  //     // testLanguages,
-  //     // testWords,
-  //   )
-  // })
+  beforeEach('insert users, motifs, phrases, and forms', () => {
+    return helpers.seedUsersMotifsPhrasesForms(
+      db,
+      testUsers,
+      testMotifs,
+      testPhrases,
+      testForms
+    )
+  })
 
   const protectedEndpoints = [
+    {
+      name: 'GET /api/motif',
+      path: '/api/motif',
+      method: supertest(app).get,
+    },
     // {
-    //   name: 'GET /api/language',
-    //   path: '/api/language',
+    //   name: 'GET /api/phrases',
+    //   path: '/api/phrases',
     //   method: supertest(app).get,
     // },
+    {
+      name: 'POST /api/motif',
+      path: '/api/motif',
+      method: supertest(app).post,
+    },
     // {
-    //   name: 'GET /api/language/head',
-    //   path: '/api/language/head',
-    //   method: supertest(app).get,
-    // },
-    // {
-    //   name: 'POST /api/language/guess',
-    //   path: '/api/language/guess',
+    //   name: 'PATCH /api/motif/:id',
+    //   path: '/api/motif/1',
     //   method: supertest(app).post,
     // },
     {
