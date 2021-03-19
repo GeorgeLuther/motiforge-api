@@ -1,7 +1,7 @@
 const app = require('../src/app')
 const helpers = require('./test-helpers')
 
-describe('Motif Endpoints', function () {
+describe('Phrase Endpoints', function () {
   let db
 
   const testUsers = helpers.makeUsersArray()
@@ -20,11 +20,11 @@ describe('Motif Endpoints', function () {
   afterEach('cleanup', () => helpers.cleanTables(db))
 
     /**
-   * @description Endpoints for motifs owned by a user
+   * @description Endpoints for phrases owned by a user
    **/
-    describe(`Motif endpoints protected by user`, () => {
+    describe(`Phrase endpoints protected by user`, () => {
 
-        describe('GET /api/motif', () => {
+        describe('GET /api/phrase', () => {
             beforeEach('insert users, motifs, phrases, and forms', () => {
                 return helpers.seedUsersMotifsPhrasesForms(
                   db,
@@ -34,28 +34,28 @@ describe('Motif Endpoints', function () {
                   testForms,
                 )
               })
-            context('Given user has no motifs',()=>{
+            context('Given user has no phrases',()=>{
                 it('responds with 200 and empty array',()=>{
                     return supertest(app)
-                        .get('/api/motif')
-                        //user 1 exists but without any owned data
+                        .get('/api/phrase')
+                        //user id of 2 exists but without any owned data
                         .set('Authorization', helpers.makeAuthHeader(testUsers[1]))
                         .expect(200, [])
                 })
             })
     
-            context('Given user has motifs',()=>{
-                it('responds with 200 and array of user motifs',()=>{
+            context('Given user has phrases',()=>{
+                it('responds with 200 and array of user phrases',()=>{
                     return supertest(app)
-                        .get('/api/motif')
+                        .get('/api/phrase')
                         //user 1 exists and owns data
                         .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
-                        .expect(200, testMotifs)
+                        .expect(200, testPhrases)
                 })
             })
         })
 
-        describe('POST /api/motif', () => {   
+        describe('POST /api/phrase', () => {   
             beforeEach('insert users, motifs, phrases, and forms', () => {
                 return helpers.seedUsersMotifsPhrasesForms(
                   db,
@@ -66,15 +66,15 @@ describe('Motif Endpoints', function () {
                 )
               })
               
-                it('responds with 201 and a template motif',()=>{
+                it('responds with 201 and a template phrase',()=>{
                     return supertest(app)
-                            .post('/api/motif')        
+                            .post('/api/phrase')        
                             .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                             .expect(201)
                 })
         
         })
-        describe('GET /api/motif/:id',()=>{
+        describe('GET /api/phrase/:id',()=>{
             beforeEach('insert users, motifs, phrases, and forms', () => {
                 return helpers.seedUsersMotifsPhrasesForms(
                   db,
@@ -84,28 +84,28 @@ describe('Motif Endpoints', function () {
                   testForms,
                 )
               })
-            context(`Given motif not in database`, () => {
+            context(`Given phrase not in database`, () => {
                 it(`responds with 404`, () => {
-                  const motifId = 1000
+                  const phraseId = 1000
                   return supertest(app)
-                    .get(`/api/motif/${motifId}`)
+                    .get(`/api/phrase/${phraseId}`)
                     .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
-                    .expect(404, { error: { message: `Motif does not exist` } })
+                    .expect(404, { error: { message: `Phrase does not exist` } })
                 })
               })
-            context('Given motif table is seeded',()=>{
-                it('responds with 204 and removes the pattern', ()=>{
+            context('Given phrase table is seeded',()=>{
+                it('responds with 204 and removes the phrase', ()=>{
                     const idToGet = 1
-                    const expectedMotif = testMotifs[0]
+                    const expectedPhrase = testPhrases[0]
                     return supertest(app)
-                            .get(`/api/motif/${idToGet}`)
+                            .get(`/api/phrase/${idToGet}`)
                             .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
-                            .expect(200, expectedMotif)
+                            .expect(200, expectedPhrase)
                 })
             })
         })
 
-        describe('DELETE /api/motif/:id',()=>{
+        describe('DELETE /api/phrase/:id',()=>{
             beforeEach('insert users, motifs, phrases, and forms', () => {
                 return helpers.seedUsersMotifsPhrasesForms(
                   db,
@@ -115,33 +115,33 @@ describe('Motif Endpoints', function () {
                   testForms,
                 )
               })
-            context(`Given motif not in database`, () => {
+            context(`Given phrase not in database`, () => {
                 it(`responds with 404`, () => {
-                  const motifId = 1000
+                  const phraseId = 1000
                   return supertest(app)
-                    .delete(`/api/motif/${motifId}`)
+                    .delete(`/api/phrase/${phraseId}`)
                     .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
-                    .expect(404, { error: { message: `Motif does not exist` } })
+                    .expect(404, { error: { message: `Phrase does not exist` } })
                 })
               })
-            context('Given motif table is seeded',()=>{
-                it('responds with 204 and removes the pattern', ()=>{
+            context('Given phrase table is seeded',()=>{
+                it('responds with 204 and removes the phrase', ()=>{
                     const idToRemove = 1
-                    const expectedMotifs = testMotifs.filter(motif => motif.id !== idToRemove)
+                    const expectedPhrases = testPhrases.filter(phrase => phrase.id !== idToRemove)
                     return supertest(app)
-                            .delete(`/api/motif/${idToRemove}`)
+                            .delete(`/api/phrase/${idToRemove}`)
                             .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                             .expect(204)
                             .then(res => 
                                 supertest(app)
-                                    .get('/api/motif')
+                                    .get('/api/phrase')
                                     .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
-                                    .expect(expectedMotifs)
+                                    .expect(expectedPhrases)
                             )
                 })
             })
         })
-        describe('PATCH /api/motif/:id',()=>{
+        describe('PATCH /api/phrase/:id',()=>{
             
             beforeEach('insert users, motifs, phrases, and forms', () => {
                 return helpers.seedUsersMotifsPhrasesForms(
@@ -152,34 +152,36 @@ describe('Motif Endpoints', function () {
                   testForms,
                 )
               })
-            context(`Given no motifs in database`, () => {
+            context(`Given no phrases in database`, () => {
                 it(`responds with 404`, () => {
-                    const motifId = 1000
+                    const phraseId = 1000
                     return supertest(app)
-                        .delete(`/api/motif/${motifId}`)
+                        .delete(`/api/phrase/${phraseId}`)
                         .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
-                        .expect(404, { error: { message: `Motif does not exist` } })
+                        .expect(404, { error: { message: `Phrase does not exist` } })
                     })
             })
-            it('responds with 204 and updates motif', ()=>{
-                const motifToUpdate = 1
+            it('responds with 204 and updates phrase', ()=>{
+                const phraseToUpdate = 1
                 const updatedBody = {
                     name: 'goof',
-                    notes: [2,5,1]
+                    motifs: [1,2,3],
+                    modal_shifts: [0,5,0]
                 }
                 return supertest(app)
-                        .patch(`/api/motif/${motifToUpdate}`)
+                        .patch(`/api/phrase/${phraseToUpdate}`)
                         .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .send(updatedBody)
                         .expect(204)
                         .then(res => 
                             supertest(app)
-                                .get(`/api/motif/${motifToUpdate}`)
+                                .get(`/api/phrase/${phraseToUpdate}`)
                                 .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                                 .expect(res => {
                                     expect(res.body).to.have.property('id', 1)
                                     expect(res.body).to.have.property('name', updatedBody.name)
-                                    expect(res.body.notes).to.eql(updatedBody.notes)
+                                    expect(res.body.motifs).to.eql(updatedBody.motifs)
+                                    expect(res.body.modal_shifts).to.eql(updatedBody.modal_shifts)
                                 })
                         )
             })

@@ -35,21 +35,76 @@ describe('Protected Endpoints', function () {
       path: '/api/motif',
       method: supertest(app).get,
     },
-    // {
-    //   name: 'GET /api/phrases',
-    //   path: '/api/phrases',
-    //   method: supertest(app).get,
-    // },
     {
       name: 'POST /api/motif',
       path: '/api/motif',
       method: supertest(app).post,
     },
-    // {
-    //   name: 'PATCH /api/motif/:id',
-    //   path: '/api/motif/1',
-    //   method: supertest(app).post,
-    // },
+    {
+      name: 'GET /api/motif/:id',
+      path: '/api/motif/1',
+      method: supertest(app).get,
+    },
+    {
+      name: 'PATCH /api/motif/:id',
+      path: '/api/motif/1',
+      method: supertest(app).patch,
+    },
+    {
+      name: 'DELETE /api/motif/:id',
+      path: '/api/motif/1',
+      method: supertest(app).delete,
+    },
+    {
+      name: 'GET /api/phrase',
+      path: '/api/phrase',
+      method: supertest(app).get,
+    },
+    {
+      name: 'POST /api/phrase',
+      path: '/api/phrase',
+      method: supertest(app).post,
+    },
+    {
+      name: 'GET /api/phrase/:id',
+      path: '/api/phrase/1',
+      method: supertest(app).get,
+    },
+    {
+      name: 'PATCH /api/phrase/:id',
+      path: '/api/phrase/1',
+      method: supertest(app).patch,
+    },
+    {
+      name: 'DELETE /api/phrase/:id',
+      path: '/api/phrase/1',
+      method: supertest(app).delete,
+    },
+    {
+      name: 'GET /api/form',
+      path: '/api/form',
+      method: supertest(app).get,
+    },
+    {
+      name: 'POST /api/form',
+      path: '/api/form',
+      method: supertest(app).post,
+    },
+    {
+      name: 'GET /api/form/:id',
+      path: '/api/form/1',
+      method: supertest(app).get,
+    },
+    {
+      name: 'PATCH /api/form/:id',
+      path: '/api/form/1',
+      method: supertest(app).patch,
+    },
+    {
+      name: 'DELETE /api/form/:id',
+      path: '/api/form/1',
+      method: supertest(app).delete,
+    },
     {
       name: 'PUT /api/auth/token',
       path: '/api/auth/token',

@@ -1,38 +1,39 @@
-const MotifService = {
-  getMotifs(db, user_id) {
+const PhraseService = {
+  getPhrases(db, user_id) {
     return db.select('*')
-      .from('motif')
+      .from('phrase')
       .where({user_id})
   },
-  getMotifById(db, id){
-    return db('motif')
+  getPhraseById(db, id){
+    return db('phrase')
             .select('*')
             .where({id})
             .first()
   },
-  addNewMotif(db, user_id){
+  addNewPhrase(db, user_id){
     return db
             .insert({
               name: 'Untitled',
-              notes: '{0,0}',
+              motifs: '{1,1}',
+              modal_shifts: '{0,0}',
               user_id: user_id
             })
-            .into('motif')
+            .into('phrase')
             .returning('*')
             .then(rows => {
                 return rows[0]
             })
             .catch(err => err)
   },
-  updateMotif(db, id, newData){
-    return db('motif')
+  updatePhrase(db, id, newData){
+    return db('phrase')
             .where({ id })
             .update(newData)
   },
-  deleteMotif(db, id){
-    return db('motif')
+  deletePhrase(db, id){
+    return db('phrase')
             .where({id})
             .delete()
   }
 }
-module.exports = MotifService
+module.exports = PhraseService

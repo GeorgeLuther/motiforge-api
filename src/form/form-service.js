@@ -1,38 +1,39 @@
-const MotifService = {
-  getMotifs(db, user_id) {
+const FormService = {
+  getForms(db, user_id) {
     return db.select('*')
-      .from('motif')
+      .from('form')
       .where({user_id})
   },
-  getMotifById(db, id){
-    return db('motif')
+  getFormById(db, id){
+    return db('form')
             .select('*')
             .where({id})
             .first()
   },
-  addNewMotif(db, user_id){
+  addNewForm(db, user_id){
     return db
             .insert({
               name: 'Untitled',
-              notes: '{0,0}',
+              motifs: '{1,1}',
+              modal_shifts: '{0,0}',
               user_id: user_id
             })
-            .into('motif')
+            .into('form')
             .returning('*')
             .then(rows => {
                 return rows[0]
             })
             .catch(err => err)
   },
-  updateMotif(db, id, newData){
-    return db('motif')
+  updateForm(db, id, newData){
+    return db('form')
             .where({ id })
             .update(newData)
   },
-  deleteMotif(db, id){
-    return db('motif')
+  deleteForm(db, id){
+    return db('form')
             .where({id})
             .delete()
   }
 }
-module.exports = MotifService
+module.exports = FormService

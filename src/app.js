@@ -7,6 +7,8 @@ const { NODE_ENV } = require('./config')
 const authRouter = require('./auth/auth-router')
 const userRouter = require('./user/user-router')
 const motifRouter = require('./motif/motif-router')
+const phraseRouter = require('./phrase/phrase-router')
+const formRouter = require('./form/form-router')
 
 const app = express()
 
@@ -26,6 +28,8 @@ app.get('/',(req,res)=>{
 app.use('/api/auth', authRouter)
 app.use('/api/user', userRouter)
 app.use('/api/motif', motifRouter)
+app.use('/api/phrase', phraseRouter)
+app.use('/api/form', formRouter)
 
 app.use(function errorHandler(error, req, res, next){
     let response

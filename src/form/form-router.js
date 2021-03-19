@@ -1,64 +1,63 @@
 const express = require('express')
 const path = require('path')
 const jsonParser = express.json()
-const MotifService = require('./motif-service')
+const FormService = require('./form-service')
 const { requireAuth } = require('../middleware/jwt-auth')
 const xss = require('xss')
 
-const motifRouter = express.Router()
+const formRouter = express.Router()
 
-motifRouter.route('/')
+formRouter.route('/')
   .get(requireAuth, (req, res, next) => {
-    MotifService.getMotifs(req.app.get('db'), req.user.id)
-      .then(motifs => {
-        return res.status(200).json(motifs)
+    FormService.getForms(req.app.get('db'), req.user.id)
+      .then(forms => {
+        return res.status(200).json(forms)
       })
       .catch(next)
   })
   .post(requireAuth, jsonParser,(req,res,next)=>{
-    MotifService.addNewMotif(req.app.get('db'), req.user.id)
-      .then(motif => {
-        return res.status(201).json(motif)
+    FormService.addNewForm(req.app.get('db'), req.user.id)
+      .then(form => {
+        return res.status(201).json(form)
       })
       .catch(next)
   })
 
-motifRouter.route('/:id')
+  formRouter.route('/:id')
     .all(requireAuth, (req, res, next)=>{
-      MotifService.getMotifById(
+        FormService.getFormById(
           req.app.get('db'),
           req.params.id
       )
-      .then(motif=>{
-          if (!motif){
+      .then(form=>{
+          if (!form){
               return res.status(404).json({
-                  error: {message: 'Motif does not exist'}
+                  error: {message: 'Form does not exist'}
               })
           }
-          res.motif = motif
+          res.form = form
           next()
       })
       .catch(next)
     })
     .get((req,res,next)=>{
-      res.status(200).json(res.motif)
+      res.status(200).json(res.form)
     })
     .delete(requireAuth, (req, res, next) => {
-      MotifService.deleteMotif(req.app.get('db'), req.params.id)
+        FormService.deleteForm(req.app.get('db'), req.params.id)
           .then(()=>{res.status(204).end()})
           .catch(next)
     })
     .patch(requireAuth, jsonParser,(req, res, next)=> {
-      const { name, notes } = req.body
-      const newData = { name, notes }
-
+      const { name, phrases, transpositions } = req.body
+      const newData = { name, phrases, transpositions }
       newData.name = xss(newData.name)
 
-      MotifService.updateMotif(req.app.get('db'), req.params.id, newData)
+      FormService.updateForm(req.app.get('db'), req.params.id, newData)
         .then(
           res.status(204).end()
         )
         .catch(next)
     })
 
-module.exports = motifRouter
+module.exports = formRouter
