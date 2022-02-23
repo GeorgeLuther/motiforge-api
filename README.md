@@ -2,7 +2,7 @@
 
 * Live version: https://motiforge-app.vercel.app
 * Demo Username & Password: admin, pass
-* Associated API: https://github.com/GeorgeLuther/motiforge-app
+* Associated APP: https://github.com/GeorgeLuther/motiforge-app
 
 Contents:\
 \
